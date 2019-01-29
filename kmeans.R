@@ -136,20 +136,6 @@ Factorize <- function(label){
   return (label)
 }
 
-PredictionwithVariation <- function(train, test) {
-  #trainColumns <- c(1:4,10)
-  trainColumns <- c(1:4,9)
-  print("kmeans for FIFO")
-  KmeansFIFO <- CalculateAccuraciesKmeans(train, test, trainColumns, 5)
-  print("Kmeans for Manual classification")
-  KmeansManual <- CalculateAccuraciesKmeans(train, test, trainColumns, 6)
-  print("kmeans for Concise Priorities 8 classes")
-  KmeansCP8 <- CalculateAccuraciesKmeans(train, test, trainColumns, 7)
-  print("kmeans for Preshaping")
-  KmeansPreshaping <- CalculateAccuraciesKmeans(train, test, trainColumns, 9)
-  return (c(KmeansFIFO, KmeansManual, KmeansCP8, KmeansPreshaping))
-}
-
 training_set1 <- CleanData(link = "TrainingDataKmeans1.txt")
 training_set2 <- CleanData(link = "TrainingDataKmeans2.txt")
 
