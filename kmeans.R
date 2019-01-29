@@ -15,7 +15,6 @@
 
   
 ############## Unsupervised learning with K-means ############################
-# NOTICE: One must runn the code of k-NN first, in order to get the voting set
 set.seed(123)
 
 library(ineq)
@@ -24,10 +23,68 @@ library(class)
 library(Rmisc)
 library(clue)
 
+
+######################## Generate voting set #########################
+CleanData <- function(link, ifFASTanalysis){
+  data <- read.csv2(link, sep='\t', header = TRUE,stringsAsFactors = TRUE)
+  success <- data
+  
+  table(success$totalIndividualFlows)
+  success <- success[success$ManualClassification < 10000,]
+  # shuffle the data
+  success <- success[sample(nrow(success)), ]
+  # reset the row index
+  rownames(success) <- seq(length=nrow(success))
+  table(success$totalIndividualFlows)
+  
+  success$FIFO[success$FIFO > 0] <- 1
+  success$RandomClassification[success$RandomClassification > 0] <- 1
+  success$ManualClassification[success$ManualClassification > 0] <- 1
+  success$ConcisePriorities3classes[success$ConcisePriorities3classes > 0] <- 1
+  success$ConcisePriorities8classes[success$ConcisePriorities8classes > 0] <- 1
+  success$solutionsOfPreshaping[success$solutionsOfPreshaping > 0] <- 2
+  success$solutionsOfPreshaping[success$solutionsOfPreshaping == 0] <- 1
+  success$solutionsOfPreshaping[success$solutionsOfPreshaping == 2] <- 0
+  
+  if (ifFASTanalysis == TRUE) {
+    success$countFailsFIFOFASTanalysis[success$countFailsFIFOFASTanalysis > 0] <- 1
+    success$countFailsManualClassificationFASTanalysis[success$countFailsManualClassificationFASTanalysis > 0] <- 1
+    success$countFails8classesFASTanalysis[success$countFails8classesFASTanalysis > 0] <- 1
+  }
+  
+  # Gini index
+  success["GiniIndex"] <- 0
+  for (i in 1:nrow(success)){
+    success$GiniIndex[i] <- ineq(success[i, 197:205])
+  }
+  
+  success <- na.omit(success)
+  rownames(success) <- seq(length=nrow(success))
+  return (success)
+}
+
+Factorize <- function(label){ 
+  label[label == 0] <- "Feasible"
+  label[label == 1] <- "Nonfeasible"
+  return (label)
+}
+
+success <- CleanData(link = "TrainingDataKNN.txt", FALSE)
+# remove number of flows is 10
+success <- success[success$totalIndividualFlows != 10, ]
+# shuffle the data - only shuffle the training data
+success <- success[sample(nrow(success)), ]
+# reset the row index
+rownames(success) <- seq(1:nrow(success))
+
 lastColumn <- length(names(success))
 # get the training data from kNN 
 dataVoting <- success[1:500 , c(2:5, 10, 12, 14, 208, lastColumn)]
 rownames(dataVoting) <- seq(length=nrow(dataVoting))
+
+############### End of code to generate voting set #######################
+
+
 
 # create normalization function
 CleanData <- function(link){
