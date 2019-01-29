@@ -15,12 +15,14 @@
 
   
 ############## Unsupervised learning with K-means ############################
+# NOTICE: One must runn the code of k-NN first, in order to get the voting set
 set.seed(123)
 
 library(ineq)
-library("caret")
-library("class")
+library(caret)
+library(class)
 library(Rmisc)
+library(clue)
 
 lastColumn <- length(names(success))
 # get the training data from kNN 
@@ -249,8 +251,11 @@ dataColumns <- c(1:4,9)
 labelColumn <- 7
 results <- CalculateAccuraciesKmeans(training_set, successVariation0percent, dataVoting, dataColumns, labelColumn)
 
+print("acc: ")
 results[1:10]*100
+print("FP: ")
 results[11:20]/10
+print("FN: ")
 results[21:30]/10
 # calculate Kappa
 a <- results[31:40] # TP
@@ -261,47 +266,140 @@ acc <- results[1:10]
 
 pE <- ((a+b)*(a+c) + (c+d)*(b+d))/(a+b+c+d) / 1000
 kappa <- (acc - pE) / (1 - pE)
+print("kappa statistic: ")
 kappa
-
-
-################## Accuracy versus size of voting set ##############################
-x <- seq(100, 1000, by=100)
-y <- c(85.46,	86.37,	88.55,	89.35,	89.35,	89.31,	89.53,	89.71,	89.67,	89.49)
-plot(x,y, type = 'b', xlab = "Size of voting set", ylab = "Accuracy of K-means (K = 20) with Preshaping (%)", 
-     xaxp = c(100, 1000, 9))
-################## End of code for Accuracy versus size of voting set ##############################
 
 
 
 ####################### Elbow Method ##############################
-k.max <- 100
-dataColumns <- c(1:4,9)
-data_train <- training_set[, dataColumns]
-
-wss <- sapply(1:k.max, function(k){kmeans(data_train, k, nstart=1,iter.max = 10 )$tot.withinss})
-
-plot(1:k.max, wss,
-     type="b", pch = 19, frame = FALSE, 
-     xlab="Number of clusters K",
-     ylab="Total within-clusters sum of squared distances")
+if(FALSE){      # if plot the Elbow method, turn the condition to TRUE
+  k.max <- 100
+  dataColumns <- c(1:4,9)
+  data_train <- training_set[, dataColumns]
+  
+  wss <- sapply(1:k.max, function(k){kmeans(data_train, k, nstart=1,iter.max = 10 )$tot.withinss})
+  
+  plot(1:k.max, wss,
+       type="b", pch = 19, frame = FALSE, 
+       xlab="Number of clusters K",
+       ylab="Total within-clusters sum of squared distances")
+}
 ####################### End of code for Elbow Method ##############################
 
 
 
 ############ variation K-means #########################
+CalculateAccuraciesKmeans <- function(train, test, dataVoting, dataColumns, labelColumn, k){
+  
+  # create training and test data
+  data_train = train[, dataColumns]
+  data_test  = test[, dataColumns]
+  dataVoting_data <- dataVoting[, dataColumns]
+  
+  # create labels for test data
+  test_labels  <- Factorize(test[, labelColumn])
+  datavoting_labels <- Factorize(dataVoting[, labelColumn])
+  
+  acc <- c()
+  FP <- c()
+  FN <- c()
+  TP <- c()
+  TN <- c()
+  
+  #numberOfClusters <- seq(2,20,by=2)
+  
+  #for(k in numberOfClusters){
+    
+    accuracies <- c()
+    falsePositives <- c()
+    falseNegatives <- c()
+    
+    truePositives <- c()
+    trueNegatives <- c()
+    
+    for (loop in 1:10) {
+      
+      cl <- kmeans(data_train, k, nstart = 1, iter.max = 50)
+      cl_test <- cl_predict(cl, data_test)
+      
+      cl_voting <- cl_predict(cl, dataVoting_data)
+      # add label for each cluster
+      cluster_label <- c()
+      for (i in 1:k) {
+        cluster_indexes <- which(cl_voting == i)
+        voting_labels  <- datavoting_labels[cluster_indexes]
+        
+        x <- table(voting_labels)
+        
+        if(is.na(x["Feasible"]) == TRUE) { x["Feasible"] <- 0}
+        if(is.na(x["Nonfeasible"]) == TRUE) { x["Nonfeasible"] <- 0}
+        
+        if (x["Nonfeasible"] > x["Feasible"]) {
+          # this cluster has less critical flows than average
+          cluster_label <- c(cluster_label, "Nonfeasible")
+        } else {
+          cluster_label <- c(cluster_label, "Feasible")
+        }
+      }
+      
+      # compare cluster label with test set
+      accuracy <- 0
+      falsePositive <- 0
+      falseNegative <- 0
+      truePositive <- 0
+      trueNegative <- 0
+      for (i in 1:k) {
+        test_cluster_indexes <- which(cl_test == i)
+        test_cluster_label <- test_labels[test_cluster_indexes]
+        
+        test_pred <- 1:length(test_cluster_label)
+        test_pred[] <- cluster_label[i]
+        
+        # R automatically convert integer to String, hence we can make comparison
+        accuracy <- accuracy + sum(as.integer(test_pred == test_cluster_label))
+        #print(paste(sum(as.integer(test_pred == test_cluster_label)), length(test_cluster_indexes)))
+        
+        falsePositive <- falsePositive + sum(as.integer((test_pred != test_cluster_label) & (test_pred == "Feasible") ))
+        
+        falseNegative <- falseNegative + sum(as.integer( (test_pred != test_cluster_label) & (test_pred == "Nonfeasible") ))
+        
+        truePositive <- falsePositive + sum(as.integer((test_pred == test_cluster_label) & (test_pred == "Feasible") ))
+        
+        trueNegative <- falseNegative + sum(as.integer( (test_pred == test_cluster_label) & (test_pred == "Nonfeasible") ))
+      }
+      
+      accuracy <- accuracy / length(test_labels)
+      
+      accuracies <- c(accuracies, mean(accuracy))
+      falsePositives <- c(falsePositives, mean(falsePositive))
+      falseNegatives <- c(falseNegatives, mean(falseNegative))
+      
+      truePositives <- c(truePositives, mean(truePositive))
+      trueNegatives <- c(trueNegatives, mean(trueNegative))
+    }
+    acc <- c(acc, mean(accuracies))
+    FP <- c(FP, mean(falsePositives))
+    FN <- c(FN, mean(falseNegatives))
+    TP <- c(TP, mean(truePositives))
+    TN <- c(TN, mean(trueNegatives))
+  #}
+  return (c(acc, FP, FN, TP, TN))
+}
 lastColumn <- length(names(success))
 dataVoting <- success[1:500 , c(2:5, 10, 12, 14, 208, lastColumn)]
 rownames(dataVoting) <- seq(length=nrow(dataVoting))
 dataVoting <- predict(minMaxScaler, dataVoting)
 
+# One should change the variation from 10% -> 90%
+# Here, number of clusters is K that have maximum accuracy without variation
 dataColumns <- c(1:4,9)
-results <- CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 5, 20)
-results
-results <- CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 6, 12)
-results
-results <- CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 7, 10)
-results
-results <- CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 8, 12)
-results
+print("acc, FP, FN, TP, TN with FIFO: ")
+CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 5, 20)
+print("acc, FP, FN, TP, TN with Manual: ")
+CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 6, 12)
+print("acc, FP, FN, TP, TN with CP8: ")
+CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 7, 10)
+print("acc, FP, FN, TP, TN with Preshaping: ")
+CalculateAccuraciesKmeans(training_set, successVariation90percent, dataVoting, dataColumns, 8, 12)
 
 
