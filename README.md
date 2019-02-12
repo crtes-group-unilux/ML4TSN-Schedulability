@@ -2,7 +2,7 @@
 Code and data of the ML experiments of the technical report "Using Machine Learning to speed up the Design Space Exploration of Ethernet TSN networks"
 
 
-*********** Explanation of R code ***********************************
+# Explanation of R code #
 
 knn.R is code to train k-NN. Include code for 5-fold evaluation and code for testing with variation from 10% - 90%
 
@@ -10,23 +10,24 @@ kmeans.R is code to train K-means. Include code for evaluation without variaion,
 
 
 
-*********** Explanation of data set *********************************
+# Explanation of data set #
 
 
-1/ Data set in TrainingDataKNN.txt is training set of k-NN.
+## Data set in TrainingDataKNN.txt is training set of k-NN ##
 
-No.			Column name						Explanation
-1			totalIndividualFlows			# of flows in the configurations (Note: remove totalIndividualFlows = 10)
-2			Critical						# of critical flows	
-3			Audio							# of audio flows
-4			Video							# of video flow
-5			maxLoad							Maximum load of all links
-10			FIFO							# of non-feasible flows with FIFO scheduling
-12			ManualClassification			# of non-feasible flows with Manual scheduling
-14			ConcisePriorities8classes		# of non-feasible flows with CP8 scheduling
-197-205		LoadOfEthernetLink_(0-8)		load of network links
-208			solutionsOfPreshaping			# of feasible solutions found by Preshaping scheduling
-212			GiniIndex						Imbalance of load in network links
+| No. |			Column name		   |				Explanation |
+|:----|:---------------------|:-------------------|
+| 1		|	totalIndividualFlows |			# of flows in the configurations (Note: remove totalIndividualFlows = 10) |
+| 2		|	Critical						 | # of critical flows |	
+| 3		|	Audio							   | # of audio flows |
+| 4		|	Video							   | # of video flow |
+| 5		|	maxLoad							 | Maximum load of all links |
+| 10	|	FIFO							   | # of non-feasible flows with FIFO scheduling |
+| 12	|	ManualClassification | # of non-feasible flows with Manual scheduling |
+| 14	|	ConcisePriorities8classes |	# of non-feasible flows with CP8 scheduling |
+| 197-205 |	LoadOfEthernetLink_(0-8) | load of network links |
+| 208	|	solutionsOfPreshaping	|	# of feasible solutions found by Preshaping scheduling |
+| 212 | GiniIndex |	Imbalance of load in network links |
 
 Note: GiniIndex is derived from load of network links (columns 197 - 205)
 
@@ -38,7 +39,7 @@ In column (205): if there is at least 1 feasible solution founded by Preshaping 
 
 
 
-2/ Data set in TrainingDataKmeans1.txt and TrainingDataKmeans2.txt is training set of K-means
+## Data set in TrainingDataKmeans1.txt and TrainingDataKmeans2.txt is training set of K-means ##
 
 The training set of K-means is divided into 2 files since it is large.
 
@@ -48,7 +49,7 @@ IMPORTANCE: There is no label column in the training set of K-means.
 
 
 
-3/ Data set in TestingDataVariation0percent.txt is testing set of k-NN / K-means.
+## Data set in TestingDataVariation0percent.txt is testing set of k-NN / K-means ##
 
 Information of position and name of columns in testing set is the same as in training set of k-NN, exception the GiniIndex (column 217).
 
