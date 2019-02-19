@@ -15,7 +15,7 @@
 
   
 ############## Unsupervised learning with K-means ############################
-set.seed(123)
+# set.seed(123)
 
 library(ineq)
 library(caret)
