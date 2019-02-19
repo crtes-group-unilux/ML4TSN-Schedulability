@@ -14,7 +14,7 @@
 
 
 ############## Supervised learning with k-NN ############################
-set.seed(123)
+# set.seed(123)
 library(ineq)
 library(caret)
 library(class)
