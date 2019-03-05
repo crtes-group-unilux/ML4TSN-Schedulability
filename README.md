@@ -1,5 +1,5 @@
 # ML4TSN-Schedulability
-Code and data of the ML experiments of the technical report "Using Machine Learning to speed up the Design Space Exploration of Ethernet TSN networks"
+Code and data of the ML experiments of the technical report "Using Machine Learning to speed up the Design Space Exploration of Ethernet TSN networks" available at url: http://orbilu.uni.lu/bitstream/10993/38604/1/feasibility-with-ml.pdf
 
 
 # Explanation of R code #
