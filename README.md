@@ -1,13 +1,14 @@
 # ML4TSN-Schedulability
-Code and data of the ML experiments of the technical report "Using Machine Learning to speed up the Design Space Exploration of Ethernet TSN networks" available at url: http://orbilu.uni.lu/bitstream/10993/38604/1/feasibility-with-ml.pdf
+Code and data of the ML experiments of
+- the technical report "Using Machine Learning to speed up the Design Space Exploration of Ethernet TSN networks" available at url: http://orbilu.uni.lu/bitstream/10993/38604/1/feasibility-with-ml.pdf
+- the paper: "A Hybrid Machine Learning and Schedulability Method for the Verification of TSN Networks", T.L. Mai, N. Navet, J. Migge, to appear at the 15th IEEE International Workshop on Factory Communication System (WFCS 2019), Sundsvall, Sweden, May 27-29, 2019. Authors' preprint available at http://orbilu.uni.lu/bitstream/10993/38990/1/hybrid-verification-TSN.pdf
 
 
 # Explanation of R code #
 
-knn.R is code to train k-NN. Include code for 5-fold evaluation and code for testing with variation from 10% - 90%
-
-kmeans.R is code to train K-means. Include code for evaluation without variaion, and code for testing with variation from 10 - 90%. NOTE: training K-means takes more time than k-NN.
-
+- knn.R is code to train k-NN. It includes code for 5-fold evaluation and code for testing with variation of the payload from 10% - 90%
+- kmeans.R is code to train K-means. It includes code for evaluation without payload variation, and code for testing with variation from 10 - 90%. NOTE: training K-means takes more time than k-NN.
+- hybrid.R is the code for the hybrid approach presented in the WFCS'2019 paper.
 
 
 # Explanation of data set #
