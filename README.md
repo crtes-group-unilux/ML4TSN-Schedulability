@@ -55,3 +55,33 @@ IMPORTANCE: There is no label column in the training set of K-means.
 Information of position and name of columns in testing set is the same as in training set of k-NN, exception the GiniIndex (column 217).
 
 Note: Information of position and name of columns in testing set are the same for all variation (0% - 90%).
+
+
+
+# Explanation of R code and data sets of the new topology - submitted to RTNS 2019 #
+
+knn_newTopo.R is the R code for new topology that is used in the paper submitted to RTNS 2019.
+
+Note: The columns in the training sets and testing sets for new topology are changed as follow.
+
+| No. |			Column name		   |				Explanation |
+|:----|:---------------------|:-------------------|
+| 1		|	totalIndividualFlows | # of flows in the configurations (Note: remove totalIndividualFlows = 10) |
+| 2		|	Critical						 | # of critical flows |	
+| 3		|	Audio							   | # of audio flows |
+| 4		|	Video							   | # of video flow |
+| 5		|	maxLoad							 | Maximum load of all links |
+| 10	|	FIFO							   | # of non-feasible flows with FIFO scheduling |
+| 12	|	ManualClassification | # of non-feasible flows with Manual scheduling |
+| 14	|	ConcisePriorities8classes |	# of non-feasible flows with CP8 scheduling |
+| 217-252 |	LoadOfEthernetLink_(0-18)_(1_2) | load of network links |
+| 255	|	solutionsOfPreshaping	|	# of feasible solutions found by Preshaping scheduling |
+| 264 | GiniIndex |	Imbalance of load in network links |
+
+Note: GiniIndex is derived from load of network links (columns 217 - 252)
+
+Column (2,3,4,5,264) are features. Column (10,12,14,255) are labels, that are feasible / non-feasible
+
+In column (10,12,14): if there is at least 1 non-feasible flows in the configuration -> the configuration is labelled non-feasible.
+
+In column (255): if there is at least 1 feasible solution founded by Preshaping -> The configuration is labelled feasible.
